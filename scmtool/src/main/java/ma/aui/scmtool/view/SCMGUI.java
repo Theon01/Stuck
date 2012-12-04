@@ -1,3 +1,4 @@
+package ma.aui.scmtool.view;
 import java.awt.EventQueue;
 
 import javax.swing.JFileChooser;
@@ -7,6 +8,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import ma.aui.scmtool.model.Metric;
+import ma.aui.scmtool.model.Parser;
 
 
 
@@ -25,7 +29,6 @@ public class SCMGUI {
 	private JMenuItem mntmOpen;
 	private JFileChooser fileChooser;
     private File selectedFile; 
-    private Metrics metrics;
     private Parser parser;
 
 	/**
@@ -78,7 +81,7 @@ public class SCMGUI {
 		        if (returnValue == JFileChooser.APPROVE_OPTION) {
 		          selectedFile = fileChooser.getSelectedFile();
 		          System.out.println(selectedFile.getName());
-		          metrics = new Metrics();
+		          //metrics = new Metric();
 		          parser = new Parser();
 		          
 		          try {

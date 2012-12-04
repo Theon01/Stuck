@@ -1,3 +1,4 @@
+package ma.aui.scmtool.model;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
