@@ -1,6 +1,7 @@
 package ma.aui.scmtool.view;
 import java.awt.EventQueue;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -9,12 +10,16 @@ import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import ma.aui.scmtool.model.CuMetadata;
 import ma.aui.scmtool.model.Parser;
+import ma.aui.scmtool.visitor.AstExplorerVisitor;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.Vector;
+
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 
@@ -27,11 +32,14 @@ public class SCMGUI
 	private JMenuItem mntmOpen;
 	private JFileChooser fileChooser;
 	private File selectedFile;
-	private JComboBox cbTypes;
+	private JComboBox<String> cbTypes;
 	private JComboBox cbMethods;
 	private JLabel lblClasses;
 	private JLabel lblMethods;
-
+	private DefaultComboBoxModel<String> cbTypesModel ;
+	private CuMetadata cuMetadata;
+	private Parser parser;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -65,6 +73,10 @@ public class SCMGUI
 		frame.setBounds(100, 100, 903, 513);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
+		
+		parser = new Parser(new AstExplorerVisitor());
+		
+		cuMetadata = new CuMetadata(new Vector<String>());
 
 		menuBar = new JMenuBar();
 		menuBar.setBounds(0, 0, 881, 23);
@@ -79,30 +91,44 @@ public class SCMGUI
 
 				fileChooser = new JFileChooser();
 				FileFilter filter = new FileNameExtensionFilter("Java files", "java");
-				fileChooser.addChoosableFileFilter(filter);
+				//fileChooser.addChoosableFileFilter(filter);
+				fileChooser.setFileFilter(filter);
 				int returnValue = fileChooser.showOpenDialog(null);
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					selectedFile = fileChooser.getSelectedFile();
+					/********
+					 * 
+					 * FILE IS OPENED 
+					 * 
+					 *******/
 					System.out.println(selectedFile.getName());
-					//metrics = new Metric();
-					//parser = new Parser();
-
+					
 					try
 					{
-						Parser.parseFile(selectedFile);
+						parser.parseFile(selectedFile);
 						
 					}
 					catch (IOException e)
 					{
 						e.printStackTrace();
 					}
+					
+					//populating the classes cb
+					cuMetadata = parser.getAstExplorerVisitor().getCuMetadata();
+					System.out.println(cuMetadata.getTypesNames().toString()+"gui");
+				
+					cbTypesModel = new DefaultComboBoxModel<String>(cuMetadata.getTypesNames());
+					cbTypes.setModel(cbTypesModel);
+				
+					
+					//cbTypesModel.addElement("test");
 				}			
 
 			}
 		});
 		mnFile.add(mntmOpen);
-		
-		cbTypes = new JComboBox();
+		cbTypesModel = new DefaultComboBoxModel<String>();
+		cbTypes = new JComboBox<String>(cbTypesModel);
 		cbTypes.setBounds(372, 117, 158, 23);
 		frame.getContentPane().add(cbTypes);
 		
