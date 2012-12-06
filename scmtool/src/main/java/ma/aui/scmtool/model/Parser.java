@@ -14,17 +14,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 public class Parser
 {
 
-	private AstExplorerVisitor astExplorerVisitor;
-	
-	
-	public Parser(AstExplorerVisitor astExplorerVisitor) {
-		super();
-		this.astExplorerVisitor = astExplorerVisitor;
-	}
-
-
-
-	public AST parseFile(File sourceFile) throws IOException
+	public static AST parseFile(File sourceFile) throws IOException
 	{
 		// Parse the file 
 		BufferedReader br = new BufferedReader(new FileReader(sourceFile));
@@ -39,21 +29,7 @@ public class Parser
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null); 
 		unit.recordModifications();
 		AST ast = unit.getAST(); 
-		unit.accept(this.getAstExplorerVisitor());
+		unit.accept(new AstExplorerVisitor());
 		return ast;
 	}
-
-
-
-	public AstExplorerVisitor getAstExplorerVisitor() {
-		return astExplorerVisitor;
-	}
-
-
-
-	public void setAstExplorerVisitor(AstExplorerVisitor astExplorerVisitor) {
-		this.astExplorerVisitor = astExplorerVisitor;
-	}
-	
-	
 }
