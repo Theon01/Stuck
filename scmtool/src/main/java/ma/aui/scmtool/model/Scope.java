@@ -1,8 +1,13 @@
 package ma.aui.scmtool.model;
 
+import org.eclipse.jdt.core.dom.ASTNode;
+
+
+
 public abstract class Scope
 {
 	protected String codeString;
+	protected ASTNode node;
 
 	public Scope(String codeString)
 	{
@@ -19,5 +24,15 @@ public abstract class Scope
 	{
 		this.codeString = codeString;
 	}
+
+	public ASTNode getNode() {
+		return node;
+	}
+
+	public void setNode(ASTNode node) {
+		this.node = node;
+	}
+	
+	
 	
 }

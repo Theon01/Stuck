@@ -19,7 +19,7 @@ public class Parser
 	
 	public Parser(AstExplorerVisitor astExplorerVisitor) {
 		super();
-		this.astExplorerVisitor = astExplorerVisitor;
+	this.astExplorerVisitor = astExplorerVisitor;
 	}
 
 
@@ -39,21 +39,23 @@ public class Parser
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null); 
 		unit.recordModifications();
 		AST ast = unit.getAST(); 
-		unit.accept(this.getAstExplorerVisitor());
+		unit.accept(this.astExplorerVisitor);
+		System.out.println(astExplorerVisitor.getClassesStack().toString());
+		System.out.println("*****************************************************");
+		System.out.println(astExplorerVisitor.getMethodsStack().toString());
+		System.out.println("********************** Statements*******************************");
+		System.out.println(astExplorerVisitor.getStStack().toString());
+		
 		return ast;
 	}
 
 
 
-	public AstExplorerVisitor getAstExplorerVisitor() {
-		return astExplorerVisitor;
-	}
+	
 
 
 
-	public void setAstExplorerVisitor(AstExplorerVisitor astExplorerVisitor) {
-		this.astExplorerVisitor = astExplorerVisitor;
-	}
+	
 	
 	
 }

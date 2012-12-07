@@ -22,6 +22,8 @@ import java.util.Vector;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 
 
 public class SCMGUI 
@@ -86,49 +88,12 @@ public class SCMGUI
 		menuBar.add(mnFile);
 
 		mntmOpen = new JMenuItem("Open");
-		mntmOpen.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-
-				fileChooser = new JFileChooser();
-				FileFilter filter = new FileNameExtensionFilter("Java files", "java");
-				//fileChooser.addChoosableFileFilter(filter);
-				fileChooser.setFileFilter(filter);
-				int returnValue = fileChooser.showOpenDialog(null);
-				if (returnValue == JFileChooser.APPROVE_OPTION) {
-					selectedFile = fileChooser.getSelectedFile();
-					/********
-					 * 
-					 * FILE IS OPENED 
-					 * 
-					 *******/
-					System.out.println(selectedFile.getName());
-					
-					try
-					{
-						parser.parseFile(selectedFile);
-						
-					}
-					catch (IOException e)
-					{
-						e.printStackTrace();
-					}
-					
-					//populating the classes cb
-					cuMetadata = parser.getAstExplorerVisitor().getCuMetadata();
-					System.out.println(cuMetadata.getTypesNames().toString()+"gui");
-				
-					cbTypesModel = new DefaultComboBoxModel<String>(cuMetadata.getTypesNames());
-					cbTypes.setModel(cbTypesModel);
-				
-					
-					//cbTypesModel.addElement("test");
-				}			
-
-			}
-		});
+		mntmOpen.addActionListener(new MntmOpenActionListener());
+		
 		mnFile.add(mntmOpen);
 		cbTypesModel = new DefaultComboBoxModel<String>();
 		cbTypes = new JComboBox<String>(cbTypesModel);
+		cbTypes.addItemListener(new CbTypesItemListener());
 		cbTypes.setBounds(372, 117, 158, 23);
 		frame.getContentPane().add(cbTypes);
 		
@@ -143,5 +108,53 @@ public class SCMGUI
 		lblMethods = new JLabel("Method");
 		lblMethods.setBounds(310, 154, 55, 16);
 		frame.getContentPane().add(lblMethods);
+	}
+	
+	//File -> Open 
+	private class MntmOpenActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			
+			fileChooser = new JFileChooser();
+			FileFilter filter = new FileNameExtensionFilter("Java files", "java");
+			//fileChooser.addChoosableFileFilter(filter);
+			fileChooser.setFileFilter(filter);
+			int returnValue = fileChooser.showOpenDialog(null);
+			if (returnValue == JFileChooser.APPROVE_OPTION) {
+				selectedFile = fileChooser.getSelectedFile();
+				/********
+				 * 
+				 * FILE IS OPENED 
+				 * 
+				 *******/
+				System.out.println(selectedFile.getName());
+				
+				try
+				{
+					parser.parseFile(selectedFile);
+					
+				}
+				catch (IOException ioe)
+				{
+					ioe.printStackTrace();
+				}
+				
+				//populating the classes cb
+			/*	cuMetadata = parser.getAstExplorerVisitor().getCuMetadata();
+				System.out.println(cuMetadata.getTypesNames().toString()+"gui");
+			
+				cbTypesModel = new DefaultComboBoxModel<String>(cuMetadata.getTypesNames());
+				cbTypes.setModel(cbTypesModel);*/
+			
+				//cbTypesModel.addElement("test");
+			}
+		}
+	}
+	private class CbTypesItemListener implements ItemListener {
+		public void itemStateChanged(ItemEvent e) {
+			
+			
+			
+			
+		}
 	}
 }

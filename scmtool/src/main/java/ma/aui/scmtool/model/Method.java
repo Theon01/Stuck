@@ -4,6 +4,20 @@ import java.util.Collection;
 
 public class Method extends Scope 
 {
+	
+    private Collection<Statement> statements;
+	
+	private Metric totalOfLevels;
+	private Metric maximumOfLevels;
+	
+	private Metric totalOfOperators;
+	private Metric maximumOfOperators;
+	
+	private Metric totalDataFlow;
+	private Metric maximumDataFlow;
+	
+	private Metric totalDataUsage;
+	private Metric maximumDataUsage;
 
 	public Metric getTotalOfLevels() {
 		return totalOfLevels;
@@ -69,19 +83,7 @@ public class Method extends Scope
 		this.maximumDataUsage = maximumDataUsage;
 	}
 
-	private Collection<Statement> statements;
 	
-	private Metric totalOfLevels;
-	private Metric maximumOfLevels;
-	
-	private Metric totalOfOperators;
-	private Metric maximumOfOperators;
-	
-	private Metric totalDataFlow;
-	private Metric maximumDataFlow;
-	
-	private Metric totalDataUsage;
-	private Metric maximumDataUsage;
 
 	public Collection<Statement> getStatements() {
 		return statements;
