@@ -3,6 +3,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Vector;
 
 import ma.aui.scmtool.visitor.AstExplorerVisitor;
 
@@ -43,8 +45,16 @@ public class Parser
 		/*System.out.println(astExplorerVisitor.getClassesStack().toString());
 		System.out.println("*****************************************************");
 		System.out.println(astExplorerVisitor.getMethodsStack().toString());*/
-		System.out.println("********************** Statements*******************************");
-		System.out.println(astExplorerVisitor.getStStack().toString());
+		//System.out.println("********************** Statements*******************************");
+		//System.out.println(astExplorerVisitor.getStStack().toString());
+		Vector<Statement> stmts = astExplorerVisitor.getStatementsList();
+		Iterator<Statement> it = stmts.iterator();
+		while(it.hasNext())
+		{
+			Statement st = it.next();
+			System.out.println(st.getCodeString() + ":");
+			System.out.println("\t" + st.getNumberOfOperators().getName() + ": " + ((IntegerMetric)st.getNumberOfOperators()).getValue());
+		}
 		
 		return ast;
 	}
