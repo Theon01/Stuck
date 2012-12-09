@@ -40,9 +40,9 @@ public class Parser
 		unit.recordModifications();
 		AST ast = unit.getAST(); 
 		unit.accept(this.astExplorerVisitor);
-		System.out.println(astExplorerVisitor.getClassesStack().toString());
+		/*System.out.println(astExplorerVisitor.getClassesStack().toString());
 		System.out.println("*****************************************************");
-		System.out.println(astExplorerVisitor.getMethodsStack().toString());
+		System.out.println(astExplorerVisitor.getMethodsStack().toString());*/
 		System.out.println("********************** Statements*******************************");
 		System.out.println(astExplorerVisitor.getStStack().toString());
 		
