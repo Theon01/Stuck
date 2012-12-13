@@ -48,12 +48,14 @@ public class Parser
 		//System.out.println("********************** Statements*******************************");
 		//System.out.println(astExplorerVisitor.getStStack().toString());
 		Vector<Statement> stmts = astExplorerVisitor.getStatementsList();
+		System.out.println("Statements :"+stmts);
 		Iterator<Statement> it = stmts.iterator();
 		while(it.hasNext())
 		{
 			Statement st = it.next();
 			System.out.println(st.getCodeString() + ":");
 			System.out.println("\t" + st.getNumberOfOperators().getName() + ": " + ((IntegerMetric)st.getNumberOfOperators()).getValue());
+			System.out.println("\t" + st.getNumberOfLevels().getName() + ": " + ((IntegerMetric)st.getNumberOfLevels()).getValue());
 		}
 		
 		return ast;

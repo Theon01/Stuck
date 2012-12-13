@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jface.text.projection.Fragment;
 
 public class AstExplorerVisitor extends ASTVisitor {
@@ -38,6 +39,8 @@ public class AstExplorerVisitor extends ASTVisitor {
 	Vector<Method> methodsList;
 	Vector<Class> classesList;
 	Vector<CompilationUnit> cunitsList;
+	
+	Integer nblevelsCount = 0;
 
 	public Vector<CompilationUnit> getCunitsList() {
 		return cunitsList;
@@ -115,67 +118,67 @@ public class AstExplorerVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(ArrayAccess node) {
-		// TODO Auto-generated method stub
+	
 		return false;
 	}
 
 	@Override
 	public boolean visit(ArrayCreation node) {
-		// TODO Auto-generated method stub
+		
 		return false;
 	}
 
 	@Override
 	public boolean visit(ArrayInitializer node) {
-		// TODO Auto-generated method stub
+	
 		return false;
 	}
 
 	@Override
 	public boolean visit(ClassInstanceCreation node) {
-		// TODO Auto-generated method stub
+		
 		return false;
 	}
 
 	@Override
 	public boolean visit(ConditionalExpression node) {
-		// TODO Auto-generated method stub
+		
 		return false;
 	}
 
 	@Override
 	public boolean visit(FieldAccess node) {
-		// TODO Auto-generated method stub
+		
 		return false;
 	}
 
 	@Override
 	public boolean visit(InfixExpression node) {
-		// TODO Auto-generated method stub
+		
 		return false;
 	}
 
 	@Override
 	public boolean visit(ParenthesizedExpression node) {
-		// TODO Auto-generated method stub
+		
 		return false;
 	}
 
 	@Override
 	public boolean visit(PostfixExpression node) {
-		// TODO Auto-generated method stub
+		
 		return false;
 	}
 
 	@Override
 	public boolean visit(PrefixExpression node) {
-		// TODO Auto-generated method stub
+		
 		return false;
 	}
 
 	@Override
 	public boolean visit(VariableDeclarationExpression node) {
-		// TODO Auto-generated method stub
+		
 		return false;
 	}
 	
@@ -184,6 +187,8 @@ public class AstExplorerVisitor extends ASTVisitor {
 	{
 		return false;
 	}
+	
+	
 
 	@Override
 	public void postVisit(ASTNode node) {
@@ -191,10 +196,22 @@ public class AstExplorerVisitor extends ASTVisitor {
 		
 		super.postVisit(node);
 		
-		switch(node.getNodeType())
-		{
+		if(node.getNodeType() == ASTNode.BLOCK){
+			switch(node.getParent().getNodeType())
+			{
 			default: break;
+
+			case ASTNode.WHILE_STATEMENT : 
+			case ASTNode.FOR_STATEMENT : 
+			case ASTNode.ENHANCED_FOR_STATEMENT : 
+			case ASTNode.IF_STATEMENT: 
+				nblevelsCount--;
+				break;				
+
+			}
+
 		}
+	
 
 		/*switch(node.getNodeType())
 		{
@@ -214,11 +231,10 @@ public class AstExplorerVisitor extends ASTVisitor {
 		{
 			Statement st = new Statement(node.toString());
 			st.setNumberOfOperators(new IntegerMetric("numberOfOperators", calculateNumberOfOperators(node)));
+			st.setNumberOfLevels(new IntegerMetric("numberOfLevels", nblevelsCount));
 			statementsList.add(st);
 			stStack.pop();
-			
 			/* Set method metrics in which this stmt exists */
-			
 		}
 	}
 
@@ -255,6 +271,22 @@ public class AstExplorerVisitor extends ASTVisitor {
 		
 
 		default: break;
+		}
+		
+		if(node.getNodeType() == ASTNode.BLOCK){
+			switch(node.getParent().getNodeType())
+			{
+			default: break;
+
+			case ASTNode.WHILE_STATEMENT : 
+			case ASTNode.FOR_STATEMENT : 
+			case ASTNode.ENHANCED_FOR_STATEMENT : 
+			case ASTNode.IF_STATEMENT: 
+				nblevelsCount++;
+				break;				
+
+			}
+
 		}
 	}
 
@@ -328,6 +360,29 @@ public class AstExplorerVisitor extends ASTVisitor {
 		}
 		return opcount;
 	}
+	
+	/*Integer calculateNumberOfLevels(ASTNode stmt){
+		
+		Integer nblcount = 0;
+		
+		switch(stmt.getNodeType())
+		{
+			default: break;
+			 
+			case ASTNode.WHILE_STATEMENT : 
+				
+				WhileStatement ws = (WhileStatement) stmt;
+				
+				
+				break;
+			case ASTNode.FOR_STATEMENT : break;
+			case ASTNode.ENHANCED_FOR_STATEMENT : break;
+			case ASTNode.IF_STATEMENT: break;				
+			
+		}
+		
+		return nblcount;
+	}*/
 
 	public Stack getStStack() {
 		return stStack;

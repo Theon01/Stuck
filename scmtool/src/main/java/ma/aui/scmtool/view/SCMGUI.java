@@ -93,7 +93,7 @@ public class SCMGUI
 		mnFile.add(mntmOpen);
 		cbTypesModel = new DefaultComboBoxModel<String>();
 		cbTypes = new JComboBox<String>(cbTypesModel);
-		cbTypes.addItemListener(new CbTypesItemListener());
+		//cbTypes.addItemListener(new CbTypesItemListener());
 		cbTypes.setBounds(372, 117, 158, 23);
 		frame.getContentPane().add(cbTypes);
 		
@@ -138,6 +138,8 @@ public class SCMGUI
 					ioe.printStackTrace();
 				}
 				
+				System.out.println(selectedFile.getAbsolutePath());
+				
 				//populating the classes cb
 			/*	cuMetadata = parser.getAstExplorerVisitor().getCuMetadata();
 				System.out.println(cuMetadata.getTypesNames().toString()+"gui");
@@ -149,12 +151,5 @@ public class SCMGUI
 			}
 		}
 	}
-	private class CbTypesItemListener implements ItemListener {
-		public void itemStateChanged(ItemEvent e) {
-			
-			
-			
-			
-		}
-	}
+
 }
