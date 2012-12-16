@@ -5,25 +5,19 @@ import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
-import ma.aui.scmtool.model.CompilationUnit;
-import ma.aui.scmtool.model.IntegerMetric;
-import ma.aui.scmtool.model.Method;
-import ma.aui.scmtool.model.Statement;
-import ma.aui.scmtool.model.Class;
-
 import org.eclipse.jdt.core.dom.*;
 
 public class AstExplorerVisitor extends ASTVisitor
 {
-	private Stack<Statement> stStack;
-	private Stack<Method> methodsStack;
-	private Stack<Class> classesStack;
-	private Stack<CompilationUnit> cuStack;
+	private Stack<ma.aui.scmtool.model.Statement> stStack;
+	private Stack<ma.aui.scmtool.model.Method> methodsStack;
+	private Stack<ma.aui.scmtool.model.Class> classesStack;
+	private Stack<ma.aui.scmtool.model.CompilationUnit> cuStack;
 	
-	private Vector<Statement> statementsList;
-	private Vector<Method> methodsList;
-	private Vector<Class> classesList;
-	private Vector<CompilationUnit> cunitsList;
+	private Vector<ma.aui.scmtool.model.Statement> statementsList;
+	private Vector<ma.aui.scmtool.model.Method> methodsList;
+	private Vector<ma.aui.scmtool.model.Class> classesList;
+	private Vector<ma.aui.scmtool.model.CompilationUnit> cunitsList;
 	
 	/**
 	 * Current level in source code
@@ -42,96 +36,96 @@ public class AstExplorerVisitor extends ASTVisitor
 	{
 		super();
 		
-		stStack      = new Stack<Statement>();
-		methodsStack = new Stack<Method>();
-		classesStack = new Stack<Class>();
-		cuStack      = new Stack<CompilationUnit>();
+		stStack      = new Stack<ma.aui.scmtool.model.Statement>();
+		methodsStack = new Stack<ma.aui.scmtool.model.Method>();
+		classesStack = new Stack<ma.aui.scmtool.model.Class>();
+		cuStack      = new Stack<ma.aui.scmtool.model.CompilationUnit>();
 		
-		statementsList =  new Vector<Statement>();
-		methodsList    = new Vector<Method>();
-		classesList    = new Vector<Class>();
-		cunitsList     = new Vector<CompilationUnit>();
+		statementsList =  new Vector<ma.aui.scmtool.model.Statement>();
+		methodsList    = new Vector<ma.aui.scmtool.model.Method>();
+		classesList    = new Vector<ma.aui.scmtool.model.Class>();
+		cunitsList     = new Vector<ma.aui.scmtool.model.CompilationUnit>();
 	}
 
 	/**
 	 * Getters and setters
 	 */ 
-	public Vector<CompilationUnit> getCunitsList()
+	public Vector<ma.aui.scmtool.model.CompilationUnit> getCunitsList()
 	{
 		return cunitsList;
 	}
 	
-	public void setCunitsList(Vector<CompilationUnit> cunitsList)
+	public void setCunitsList(Vector<ma.aui.scmtool.model.CompilationUnit> cunitsList)
 	{
 		this.cunitsList = cunitsList;
 	}
 	
-	public Vector<Method> getMethodsList()
+	public Vector<ma.aui.scmtool.model.Method> getMethodsList()
 	{
 		return methodsList;
 	}
 
-	public void setMethodsList(Vector<Method> methodsList) 
+	public void setMethodsList(Vector<ma.aui.scmtool.model.Method> methodsList) 
 	{
 		this.methodsList = methodsList;
 	}
 	
-	public Vector<Class> getClassesList()
+	public Vector<ma.aui.scmtool.model.Class> getClassesList()
 	{
 		return classesList;
 	}
 	
-	public void setClassesList(Vector<Class> classesList)
+	public void setClassesList(Vector<ma.aui.scmtool.model.Class> classesList)
 	{
 		this.classesList = classesList;
 	}
 
-	public Vector<Statement> getStatementsList()
+	public Vector<ma.aui.scmtool.model.Statement> getStatementsList()
 	{
 		return statementsList;
 	}
 
-	public void setStatementsList(Vector<Statement> statementsList)
+	public void setStatementsList(Vector<ma.aui.scmtool.model.Statement> statementsList)
 	{
 		this.statementsList = statementsList;
 	}
 	
-	public Stack<Statement> getStStack()
+	public Stack<ma.aui.scmtool.model.Statement> getStStack()
 	{
 		return stStack;
 	}
 
-	public Stack<Method> getMethodsStack()
+	public Stack<ma.aui.scmtool.model.Method> getMethodsStack()
 	{
 		return methodsStack;
 	}
 
-	public Stack<Class> getClassesStack()
+	public Stack<ma.aui.scmtool.model.Class> getClassesStack()
 	{
 		return classesStack;
 	}
 
-	public Stack<CompilationUnit> getCuStack()
+	public Stack<ma.aui.scmtool.model.CompilationUnit> getCuStack()
 	{
 		return cuStack;
 	}
 
-	public void setStStack(Stack<Statement> stStack)
+	public void setStStack(Stack<ma.aui.scmtool.model.Statement> stStack)
 	{
 		this.stStack = stStack;
 	}
 
-	public void setMethodsStack(Stack<Method> methodsStack)
+	public void setMethodsStack(Stack<ma.aui.scmtool.model.Method> methodsStack)
 	{
 		this.methodsStack = methodsStack;
 	}
 
-	public void setClassesStack(Stack<Class> classesStack)
+	public void setClassesStack(Stack<ma.aui.scmtool.model.Class> classesStack)
 	{
 		this.classesStack = classesStack;
 	}
 
-	public void setCuStack(Stack<CompilationUnit> cuStack)
+	public void setCuStack(Stack<ma.aui.scmtool.model.CompilationUnit> cuStack)
 	{
 		this.cuStack = cuStack;
 	}
@@ -145,28 +139,26 @@ public class AstExplorerVisitor extends ASTVisitor
 	{
 		super.preVisit(node);
 		
-		/* TODO: create stmt instance and push it into stack instead of node */
-
 		/**
 		 * Push statement for processing
 		 */
 		if(node instanceof Expression)
 		{
-			stStack.push(node);
+			stStack.push(new ma.aui.scmtool.model.Statement(););
 		}
 
 		switch (node.getNodeType())
 		{
 			case ASTNode.TYPE_DECLARATION : 
-				classesStack.push(node); 
+				classesStack.push(new ma.aui.scmtool.model.Class()); 
 				break;
 				
 			case ASTNode.METHOD_DECLARATION : 
-				methodsStack.push(node); 
+				methodsStack.push(new ma.aui.scmtool.model.Method()); 
 				break;
 				
 			case ASTNode.COMPILATION_UNIT : 
-				cuStack.push(node); 
+				cuStack.push(new ma.aui.scmtool.model.CompilationUnit()); 
 				break;
 		
 			default: break;
