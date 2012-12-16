@@ -11,43 +11,29 @@ import ma.aui.scmtool.model.Method;
 import ma.aui.scmtool.model.Statement;
 import ma.aui.scmtool.model.Class;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.ArrayAccess;
-import org.eclipse.jdt.core.dom.ArrayCreation;
-import org.eclipse.jdt.core.dom.ArrayInitializer;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.ClassInstanceCreation;
-import org.eclipse.jdt.core.dom.ConditionalExpression;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.FieldAccess;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.InfixExpression;
-import org.eclipse.jdt.core.dom.Initializer;
-import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.ParenthesizedExpression;
-import org.eclipse.jdt.core.dom.PostfixExpression;
-import org.eclipse.jdt.core.dom.PrefixExpression;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.core.dom.*;
 
 public class AstExplorerVisitor extends ASTVisitor
 {
-	private Stack stStack;
-	private Stack methodsStack;
-	private Stack classesStack;
-	private Stack cuStack;
+	private Stack<Statement> stStack;
+	private Stack<Method> methodsStack;
+	private Stack<Class> classesStack;
+	private Stack<CompilationUnit> cuStack;
 	
-	Vector<Statement> statementsList;
-	Vector<Method> methodsList;
-	Vector<Class> classesList;
-	Vector<CompilationUnit> cunitsList;
+	private Vector<Statement> statementsList;
+	private Vector<Method> methodsList;
+	private Vector<Class> classesList;
+	private Vector<CompilationUnit> cunitsList;
 	
-	Integer nblevelsCount = 0;
-	Integer nbOfPublicMembers = 0;
+	/**
+	 * Current level in source code
+	 */ 
+	private Integer nblevelsCount = 0;
+	
+	/**
+	 * Count of public members in current class
+	 */ 
+	private Integer nbOfPublicMembers = 0;
 	
 	/**
 	 * Constructor
@@ -56,10 +42,10 @@ public class AstExplorerVisitor extends ASTVisitor
 	{
 		super();
 		
-		stStack      = new Stack<ASTNode>();
-		methodsStack = new Stack<ASTNode>();
-		classesStack = new Stack<ASTNode>();
-		cuStack      = new Stack<ASTNode>();
+		stStack      = new Stack<Statement>();
+		methodsStack = new Stack<Method>();
+		classesStack = new Stack<Class>();
+		cuStack      = new Stack<CompilationUnit>();
 		
 		statementsList =  new Vector<Statement>();
 		methodsList    = new Vector<Method>();
@@ -110,42 +96,42 @@ public class AstExplorerVisitor extends ASTVisitor
 		this.statementsList = statementsList;
 	}
 	
-	public Stack getStStack()
+	public Stack<Statement> getStStack()
 	{
 		return stStack;
 	}
 
-	public Stack getMethodsStack()
+	public Stack<Method> getMethodsStack()
 	{
 		return methodsStack;
 	}
 
-	public Stack getClassesStack()
+	public Stack<Class> getClassesStack()
 	{
 		return classesStack;
 	}
 
-	public Stack getCuStack()
+	public Stack<CompilationUnit> getCuStack()
 	{
 		return cuStack;
 	}
 
-	public void setStStack(Stack stStack)
+	public void setStStack(Stack<Statement> stStack)
 	{
 		this.stStack = stStack;
 	}
 
-	public void setMethodsStack(Stack methodsStack)
+	public void setMethodsStack(Stack<Method> methodsStack)
 	{
 		this.methodsStack = methodsStack;
 	}
 
-	public void setClassesStack(Stack classesStack)
+	public void setClassesStack(Stack<Class> classesStack)
 	{
 		this.classesStack = classesStack;
 	}
 
-	public void setCuStack(Stack cuStack)
+	public void setCuStack(Stack<CompilationUnit> cuStack)
 	{
 		this.cuStack = cuStack;
 	}
@@ -155,10 +141,15 @@ public class AstExplorerVisitor extends ASTVisitor
 	 * Push symbols into their corresponding stack to prepare them for processing
 	 */
 	@Override
-	public void preVisit(ASTNode node) {
-
+	public void preVisit(ASTNode node)
+	{
 		super.preVisit(node);
+		
+		/* TODO: create stmt instance and push it into stack instead of node */
 
+		/**
+		 * Push statement for processing
+		 */
 		if(node instanceof Expression)
 		{
 			stStack.push(node);
@@ -166,13 +157,24 @@ public class AstExplorerVisitor extends ASTVisitor
 
 		switch (node.getNodeType())
 		{
-			case ASTNode.TYPE_DECLARATION : classesStack.push(node); break;
-			case ASTNode.METHOD_DECLARATION : methodsStack.push(node); break;
-			case ASTNode.COMPILATION_UNIT : cuStack.push(node); break;
+			case ASTNode.TYPE_DECLARATION : 
+				classesStack.push(node); 
+				break;
+				
+			case ASTNode.METHOD_DECLARATION : 
+				methodsStack.push(node); 
+				break;
+				
+			case ASTNode.COMPILATION_UNIT : 
+				cuStack.push(node); 
+				break;
 		
 			default: break;
 		}
 		
+		/**
+		 * Update level
+		 */
 		if(node.getNodeType() == ASTNode.BLOCK)
 		{
 			switch(node.getParent().getNodeType())
@@ -183,7 +185,7 @@ public class AstExplorerVisitor extends ASTVisitor
 				case ASTNode.FOR_STATEMENT : 
 				case ASTNode.ENHANCED_FOR_STATEMENT : 
 				case ASTNode.IF_STATEMENT: 
-					nblevelsCount++;
+					nblevelsCount ++;
 					break;				
 			}
 		}
