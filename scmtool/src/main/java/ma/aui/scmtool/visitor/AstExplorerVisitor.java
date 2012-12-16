@@ -45,6 +45,9 @@ public class AstExplorerVisitor extends ASTVisitor
 		methodsList    = new Vector<ma.aui.scmtool.model.Method>();
 		classesList    = new Vector<ma.aui.scmtool.model.Class>();
 		cunitsList     = new Vector<ma.aui.scmtool.model.CompilationUnit>();
+		
+		nblevelsCount = 0;
+		nbOfPublicMembers = 0;
 	}
 
 	/**
@@ -192,6 +195,9 @@ public class AstExplorerVisitor extends ASTVisitor
 	{	
 		super.postVisit(node);
 		
+		/**
+		 * Update level
+		 */
 		if(node.getNodeType() == ASTNode.BLOCK)
 		{
 			switch(node.getParent().getNodeType())
@@ -200,7 +206,7 @@ public class AstExplorerVisitor extends ASTVisitor
 				case ASTNode.FOR_STATEMENT : 
 				case ASTNode.ENHANCED_FOR_STATEMENT : 
 				case ASTNode.IF_STATEMENT: 
-					nblevelsCount--;
+					nblevelsCount --;
 					break;	
 					
 				default: break;
@@ -270,7 +276,7 @@ public class AstExplorerVisitor extends ASTVisitor
 	   
 	    		if (Modifier.isPublic(modifiers))
 	    		{
-	    			nbOfPublicMembers++;
+	    			nbOfPublicMembers ++;
 	    			System.out.println("public field detected ");
 	    		}
 	    	}
