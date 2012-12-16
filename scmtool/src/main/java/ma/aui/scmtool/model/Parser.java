@@ -47,8 +47,8 @@ public class Parser
 		System.out.println(astExplorerVisitor.getMethodsStack().toString());*/
 		//System.out.println("********************** Statements*******************************");
 		//System.out.println(astExplorerVisitor.getStStack().toString());
-		Vector<Statement> stmts = astExplorerVisitor.getStatementsList();
-		System.out.println("Statements :"+stmts);
+		Vector<Statement> stmts = astExplorerVisitor.getStatementsList(); 
+		System.out.println("Statements :"+stmts.size());
 		Iterator<Statement> it = stmts.iterator();
 		while(it.hasNext())
 		{
@@ -57,6 +57,22 @@ public class Parser
 			System.out.println("\t" + st.getNumberOfOperators().getName() + ": " + ((IntegerMetric)st.getNumberOfOperators()).getValue());
 			System.out.println("\t" + st.getNumberOfLevels().getName() + ": " + ((IntegerMetric)st.getNumberOfLevels()).getValue());
 		}
+		
+		Vector<Class> classes = astExplorerVisitor.getClassesList();
+		System.out.println("Classes :"+classes.size());
+		
+		Iterator<Class> itc = classes.iterator();
+		while(itc.hasNext()){
+			
+			Class clazz = itc.next();
+			
+			System.out.println(clazz.toString() + ":");
+			System.out.println("\t" + clazz.getNumberOfPublicMembers().getName() + ": " + ((IntegerMetric)clazz.getNumberOfPublicMembers()).getValue());
+			
+			
+			
+		}
+		
 		
 		return ast;
 	}

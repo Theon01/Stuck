@@ -238,10 +238,10 @@ public class Class extends Scope
 
 	
 	
-	public Class(String codeString, Collection<Method> methods)
+	public Class(String codeString)
 	{
 		super(codeString);
-		this.methods = methods;
+		
 	}
 
 	public Collection<Method> getMethods()

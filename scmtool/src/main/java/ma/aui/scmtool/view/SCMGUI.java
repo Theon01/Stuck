@@ -25,7 +25,6 @@ import javax.swing.JLabel;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 
-
 public class SCMGUI 
 {
 	private JFrame frame;
@@ -69,6 +68,7 @@ public class SCMGUI
 	/**
 	 * Initialize the contents of the frame.
 	 */
+	
 	private void initialize() {
 		frame = new JFrame();
 		frame.setResizable(false);

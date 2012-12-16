@@ -1,4 +1,5 @@
 package ma.aui.scmtool.visitor;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
@@ -19,8 +20,10 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
@@ -41,6 +44,8 @@ public class AstExplorerVisitor extends ASTVisitor {
 	Vector<CompilationUnit> cunitsList;
 	
 	Integer nblevelsCount = 0;
+	
+	Integer nbOfPublicMembers = 0;
 
 	public Vector<CompilationUnit> getCunitsList() {
 		return cunitsList;
@@ -107,6 +112,57 @@ public class AstExplorerVisitor extends ASTVisitor {
 	}
 
 
+	@Override
+	public void preVisit(ASTNode node) {
+
+		super.preVisit(node);
+		/*if (node instanceof org.eclipse.jdt.core.dom.Statement){
+			stStack.push(node);	
+		}*/
+
+		if(node instanceof Expression)
+		{
+			stStack.push(node);
+		}
+
+		switch (node.getNodeType()){
+
+		case ASTNode.TYPE_DECLARATION : classesStack.push(node); break;
+
+		case ASTNode.METHOD_DECLARATION : methodsStack.push(node); break;
+
+		case ASTNode.COMPILATION_UNIT : cuStack.push(node); break;
+
+		/*case ASTNode.ARRAY_INITIALIZER :
+		case ASTNode.ASSIGNMENT : 
+		case ASTNode.CONDITIONAL_EXPRESSION :
+		case ASTNode.INFIX_EXPRESSION :
+		case ASTNode.INITIALIZER : 
+		case ASTNode.POSTFIX_EXPRESSION:
+		case ASTNode.PREFIX_EXPRESSION:
+		case ASTNode.VARIABLE_DECLARATION_STATEMENT:	
+			stStack.push(node); break;*/
+		
+
+		default: break;
+		}
+		
+		if(node.getNodeType() == ASTNode.BLOCK){
+			switch(node.getParent().getNodeType())
+			{
+			default: break;
+
+			case ASTNode.WHILE_STATEMENT : 
+			case ASTNode.FOR_STATEMENT : 
+			case ASTNode.ENHANCED_FOR_STATEMENT : 
+			case ASTNode.IF_STATEMENT: 
+				nblevelsCount++;
+				break;				
+
+			}
+
+		}
+	}
 
 	@Override
 	public boolean visit(Assignment node) {
@@ -121,6 +177,33 @@ public class AstExplorerVisitor extends ASTVisitor {
 	
 		return false;
 	}
+
+	@Override
+	public boolean visit(TypeDeclaration node) {
+		
+		FieldDeclaration[] classFields =  new FieldDeclaration[node.getFields().length];
+		System.out.println(node.getFields().length);
+	    classFields= node.getFields();
+	    
+	    for (FieldDeclaration classField :classFields){
+	    	
+	    	int modifiers = classField.getModifiers();
+	    	
+	    	System.out.println(classField.toString());
+	    	
+	    	if (Modifier.isPublic(modifiers)){
+	    		
+	    		nbOfPublicMembers++;
+	    		
+	    		System.out.println("public field detected ");
+	    		
+	    	}
+	    }
+		
+		return super.visit(node);
+	}
+
+
 
 	@Override
 	public boolean visit(ArrayCreation node) {
@@ -236,60 +319,20 @@ public class AstExplorerVisitor extends ASTVisitor {
 			stStack.pop();
 			/* Set method metrics in which this stmt exists */
 		}
-	}
-
-	@Override
-	public void preVisit(ASTNode node) {
-
-		super.preVisit(node);
-		/*if (node instanceof org.eclipse.jdt.core.dom.Statement){
-			stStack.push(node);	
-		}*/
-
-		if(node instanceof org.eclipse.jdt.core.dom.Expression)
-		{
-			stStack.push(node);
-		}
-
-		switch (node.getNodeType()){
-
-		case ASTNode.TYPE_DECLARATION : classesStack.push(node); break;
-
-		case ASTNode.METHOD_DECLARATION : methodsStack.push(node); break;
-
-		case ASTNode.COMPILATION_UNIT : cuStack.push(node); break;
-
-		/*case ASTNode.ARRAY_INITIALIZER :
-		case ASTNode.ASSIGNMENT : 
-		case ASTNode.CONDITIONAL_EXPRESSION :
-		case ASTNode.INFIX_EXPRESSION :
-		case ASTNode.INITIALIZER : 
-		case ASTNode.POSTFIX_EXPRESSION:
-		case ASTNode.PREFIX_EXPRESSION:
-		case ASTNode.VARIABLE_DECLARATION_STATEMENT:	
-			stStack.push(node); break;*/
 		
-
-		default: break;
+		if (node instanceof TypeDeclaration){
+			
+           Class clazz = new Class(node.toString());
+           
+           clazz.setNumberOfPublicMembers(new IntegerMetric ("numberOfPublicMembers",nbOfPublicMembers));
+           
+           classesList.add(clazz);
+           
+           classesStack.pop();
+			
 		}
 		
-		if(node.getNodeType() == ASTNode.BLOCK){
-			switch(node.getParent().getNodeType())
-			{
-			default: break;
-
-			case ASTNode.WHILE_STATEMENT : 
-			case ASTNode.FOR_STATEMENT : 
-			case ASTNode.ENHANCED_FOR_STATEMENT : 
-			case ASTNode.IF_STATEMENT: 
-				nblevelsCount++;
-				break;				
-
-			}
-
-		}
 	}
-
 
 	Integer calculateNumberOfOperators(ASTNode stmt)
 	{
