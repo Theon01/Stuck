@@ -41,7 +41,7 @@ public class AstExplorerVisitor extends ASTVisitor
 		classesStack = new Stack<ma.aui.scmtool.model.Class>();
 		cuStack      = new Stack<ma.aui.scmtool.model.CompilationUnit>();
 		
-		statementsList =  new Vector<ma.aui.scmtool.model.Statement>();
+		statementsList = new Vector<ma.aui.scmtool.model.Statement>();
 		methodsList    = new Vector<ma.aui.scmtool.model.Method>();
 		classesList    = new Vector<ma.aui.scmtool.model.Class>();
 		cunitsList     = new Vector<ma.aui.scmtool.model.CompilationUnit>();
@@ -144,7 +144,7 @@ public class AstExplorerVisitor extends ASTVisitor
 		 */
 		if(node instanceof Expression)
 		{
-			stStack.push(new ma.aui.scmtool.model.Statement(););
+			stStack.push(new ma.aui.scmtool.model.Statement());
 		}
 
 		switch (node.getNodeType())
@@ -181,6 +181,63 @@ public class AstExplorerVisitor extends ASTVisitor
 					break;				
 			}
 		}
+	}
+	
+	/**
+	 * AST post-visitor
+	 * Pop symbols off and add them to their corresponding vectors
+	 */
+	@Override
+	public void postVisit(ASTNode node)
+	{	
+		super.postVisit(node);
+		
+		if(node.getNodeType() == ASTNode.BLOCK)
+		{
+			switch(node.getParent().getNodeType())
+			{
+				case ASTNode.WHILE_STATEMENT : 
+				case ASTNode.FOR_STATEMENT : 
+				case ASTNode.ENHANCED_FOR_STATEMENT : 
+				case ASTNode.IF_STATEMENT: 
+					nblevelsCount--;
+					break;	
+					
+				default: break;
+			}
+		}
+		
+		/**
+		 * Post-process statements
+		 */
+		if(node instanceof Expression)
+		{
+			ma.aui.scmtool.model.Statement st = stStack.pop();
+			
+			st.setNumberOfOperators(new IntegerMetric("Number of Operators", calculateNumberOfOperators(node)));
+			st.setNumberOfLevels(new IntegerMetric("Number of Levels", nblevelsCount));
+			statementsList.add(st);
+			
+			/* Set method metrics in which this stmt exists */
+		}
+		
+		/**
+		 * Post-process methods
+		 */
+		 if(node instance of MehtodDeclaration)
+		 {
+		 }
+		
+		/**
+		 * Post-process classes
+		 */
+		if (node instanceof TypeDeclaration)
+		{		
+	           ma.aui.scmtool.model.Class clazz = classesStack.pop();
+	           
+	           clazz.setNumberOfPublicMembers(new IntegerMetric ("Number of Public Members", nbOfPublicMembers));
+	           classesList.add(clazz);		
+		}	
 	}
 
 	/**
@@ -285,51 +342,6 @@ public class AstExplorerVisitor extends ASTVisitor
 	public boolean visit(VariableDeclarationFragment node)
 	{
 		return false;
-	}
-	
-	/**
-	 * AST post-visitor
-	 * Pop symbols off and add them to their corresponding vectors
-	 */
-	@Override
-	public void postVisit(ASTNode node)
-	{	
-		super.postVisit(node);
-		
-		if(node.getNodeType() == ASTNode.BLOCK)
-		{
-			switch(node.getParent().getNodeType())
-			{
-				case ASTNode.WHILE_STATEMENT : 
-				case ASTNode.FOR_STATEMENT : 
-				case ASTNode.ENHANCED_FOR_STATEMENT : 
-				case ASTNode.IF_STATEMENT: 
-					nblevelsCount--;
-					break;	
-					
-				default: break;
-			}
-		}
-		
-		if(node instanceof Expression)
-		{
-			Statement st = new Statement(node.toString());
-			st.setNumberOfOperators(new IntegerMetric("numberOfOperators", calculateNumberOfOperators(node)));
-			st.setNumberOfLevels(new IntegerMetric("numberOfLevels", nblevelsCount));
-			statementsList.add(st);
-			stStack.pop();
-			/* Set method metrics in which this stmt exists */
-		}
-		
-		if (node instanceof TypeDeclaration)
-		{		
-	           Class clazz = new Class(node.toString());
-	           
-	           clazz.setNumberOfPublicMembers(new IntegerMetric ("numberOfPublicMembers",nbOfPublicMembers));
-	           classesList.add(clazz);
-	           classesStack.pop();		
-		}
-		
 	}
 
 	/**
