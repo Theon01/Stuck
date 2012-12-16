@@ -1,4 +1,5 @@
 package ma.aui.scmtool.visitor;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
