@@ -13,4 +13,11 @@ public class CompilationUnit extends Scope
 		this.classes = classes;
 	}
 
+	/**
+	 * Default constructor
+	 */
+	public CompilationUnit() 
+	{
+	}
+
 }

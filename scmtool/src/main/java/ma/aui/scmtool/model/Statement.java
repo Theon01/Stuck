@@ -13,7 +13,11 @@ public class Statement extends Scope
 	public Statement(String codeString) {
 		super(codeString);
 	}
-
+	
+	public Statement(){
+		
+	}
+		
 	public Metric getNumberOfOperators() {
 		return numberOfOperators;
 	}

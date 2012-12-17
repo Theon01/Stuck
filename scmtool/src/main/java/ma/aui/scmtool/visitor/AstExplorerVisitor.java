@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
+
+import ma.aui.scmtool.model.IntegerMetric;
+
 import org.eclipse.jdt.core.dom.*;
 
 public class AstExplorerVisitor extends ASTVisitor
@@ -25,9 +28,26 @@ public class AstExplorerVisitor extends ASTVisitor
 	private Integer nblevelsCount = 0;
 	
 	/**
+	 * Max level in source code
+	 */
+	private Integer maxLevel = 0;
+	
+	/**
+	 * Max number of operators 
+	 */
+	
+	private Integer maxNumberOfOperators = 0;
+	
+	/**
 	 * Count of public members in current class
 	 */ 
 	private Integer nbOfPublicMembers = 0;
+	
+	private Integer maxDataFlow = 0;
+	
+	private Integer maxDataUsage = 0;
+	
+	ma.aui.scmtool.model.Method topMethod;
 	
 	/**
 	 * Constructor
@@ -47,6 +67,12 @@ public class AstExplorerVisitor extends ASTVisitor
 		cunitsList     = new Vector<ma.aui.scmtool.model.CompilationUnit>();
 		
 		nblevelsCount = 0;
+		
+		maxLevel = 0;
+		maxNumberOfOperators = 0;
+		maxDataFlow = 0;
+		maxDataUsage = 0;
+		
 		nbOfPublicMembers = 0;
 	}
 
@@ -145,19 +171,23 @@ public class AstExplorerVisitor extends ASTVisitor
 		/**
 		 * Push statement for processing
 		 */
-		if(node instanceof Expression)
+		if(node instanceof Expression || node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT )
 		{
-			stStack.push(new ma.aui.scmtool.model.Statement());
+			stStack.push(new ma.aui.scmtool.model.Statement(node.toString()));
 		}
 
 		switch (node.getNodeType())
 		{
 			case ASTNode.TYPE_DECLARATION : 
-				classesStack.push(new ma.aui.scmtool.model.Class()); 
+				classesStack.push(new ma.aui.scmtool.model.Class(node.toString())); 
 				break;
 				
 			case ASTNode.METHOD_DECLARATION : 
-				methodsStack.push(new ma.aui.scmtool.model.Method()); 
+				methodsStack.push(new ma.aui.scmtool.model.Method(node.toString()));
+				maxLevel = 0; // Reset max level (new method)
+				maxNumberOfOperators = 0; // Reset max of operators
+				maxDataFlow = 0; // Reset max of data flow
+				maxDataUsage = 0; // Reset max of data usage
 				break;
 				
 			case ASTNode.COMPILATION_UNIT : 
@@ -181,6 +211,10 @@ public class AstExplorerVisitor extends ASTVisitor
 				case ASTNode.ENHANCED_FOR_STATEMENT : 
 				case ASTNode.IF_STATEMENT: 
 					nblevelsCount ++;
+					if(nblevelsCount > maxLevel)
+					{
+						maxLevel = nblevelsCount;
+					}
 					break;				
 			}
 		}
@@ -216,22 +250,105 @@ public class AstExplorerVisitor extends ASTVisitor
 		/**
 		 * Post-process statements
 		 */
-		if(node instanceof Expression)
+		if(node instanceof Expression || node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT)
 		{
 			ma.aui.scmtool.model.Statement st = stStack.pop();
 			
-			st.setNumberOfOperators(new IntegerMetric("Number of Operators", calculateNumberOfOperators(node)));
+			Integer nbOps = calculateNumberOfOperators(node);
+			if(nbOps > maxNumberOfOperators)
+			{
+				maxNumberOfOperators = nbOps;
+			}
+			
+			st.setNumberOfOperators(new IntegerMetric("Number of Operators", nbOps));
 			st.setNumberOfLevels(new IntegerMetric("Number of Levels", nblevelsCount));
+			/* TODO: Update next two lines */
+			st.setDataFlow(new IntegerMetric("Total of Data Flow", 0));
+			st.setDataUsage(new IntegerMetric("Total of Data Usage", 0));
+			
 			statementsList.add(st);
 			
 			/* Set method metrics in which this stmt exists */
+			if (! methodsStack.empty())
+			{
+				 topMethod = methodsStack.peek();
+				
+				/* Update total of operators */
+				IntegerMetric totalOfOperators = (IntegerMetric) topMethod.getTotalOfOperators();
+				IntegerMetric stTotalOfOperators = (IntegerMetric) st.getNumberOfOperators();
+				totalOfOperators.addToValue(stTotalOfOperators.getValue());
+				
+				/* Update total of levels */
+				IntegerMetric totalOfLevels = (IntegerMetric) topMethod.getTotalOfLevels();
+				IntegerMetric stTotalOflevels = (IntegerMetric) st.getNumberOfLevels();
+				totalOfLevels.addToValue(stTotalOflevels.getValue());
+				
+				/* Update data flow */
+				IntegerMetric totalOfDataFlow = (IntegerMetric) topMethod.getTotalDataFlow();
+				IntegerMetric stTotalOfDataFlow = (IntegerMetric) st.getDataFlow();
+				totalOfDataFlow.addToValue(stTotalOfDataFlow.getValue());
+				
+				/* Update data usage */
+				IntegerMetric totalOfDataUsage = (IntegerMetric) topMethod.getTotalDataUsage();
+				IntegerMetric stTotalOfDataUsage = (IntegerMetric) st.getDataUsage();
+				totalOfDataUsage.addToValue(stTotalOfDataUsage.getValue());
+				
+				/* Add stmt to list of stmts in method */
+				topMethod.getStatements().add(st);
+			}
 		}
 		
 		/**
 		 * Post-process methods
 		 */
-		 if(node instance of MehtodDeclaration)
+		 if(node instanceof MethodDeclaration)
 		 {
+			 ma.aui.scmtool.model.Method method = methodsStack.pop();
+			 
+			 IntegerMetric maxOfOperators = (IntegerMetric) method.getMaximumOfOperators();
+			 maxOfOperators.setValue(maxNumberOfOperators);
+			 
+			 IntegerMetric maxOfLevels = (IntegerMetric) method.getMaximumOfLevels();
+			 maxOfLevels.setValue(maxLevel);
+			 
+			 IntegerMetric maxOfDataFlow = (IntegerMetric) method.getMaximumDataFlow();
+			 maxOfDataFlow.setValue(maxDataFlow);
+			 
+			 IntegerMetric maxOfDataUsage = (IntegerMetric) method.getMaximumDataUsage();
+			 maxOfDataUsage.setValue(maxDataUsage);
+			 
+			 /* TODO: remove next two lines */
+			 IntegerMetric totalOfOperators = (IntegerMetric) method.getTotalOfOperators();
+			 IntegerMetric totalOfLevels = (IntegerMetric) method.getTotalOfLevels();
+			 
+			 /* TODO: remove printing code from here */
+			 System.out.println("Method statements count: " + topMethod.getStatements().size());
+			 System.out.println("\t" +"Total of Operators : " + totalOfOperators.getValue());
+			 System.out.println("\t" +"Total of Levels : " + totalOfLevels.getValue());
+			 System.out.println("\tMax of Levels : "+maxLevel);
+			 System.out.println("\tMax of Operators : "+maxNumberOfOperators);
+			 System.out.println("\tMax of data flow : "+maxDataFlow);
+			 System.out.println("\tMax of data usage : "+maxDataUsage);
+			 
+			 /* Set class metrics in which this method exists */
+			 ma.aui.scmtool.model.Class topClass = classesStack.peek();
+			 
+			 /* Update total of operators */
+			 IntegerMetric classTotalOfOperators = (IntegerMetric) topClass.getTotalOfOperators();
+			 IntegerMetric methodClassTotalOfOperators = (IntegerMetric) method.getTotalOfOperators();
+			 classTotalOfOperators.addToValue(methodClassTotalOfOperators.getValue());
+				
+			 /* TODO: Update total of max operators */
+			 IntegerMetric classTotalOfMaxOfOperators = (IntegerMetric) topClass.getTotalOfMaximumOperators();
+			 IntegerMetric methodClassMaxOfOperators = (IntegerMetric) method.getMaximumOfOperators();
+			 classTotalOfMaxOfOperators.addToValue(methodClassMaxOfOperators.getValue());
+			 
+			 /* TODO: Update total of levels */
+			 /* TODO: Update total of max levels */
+			 /* TODO: Update total of data flow */
+			 /* TODO: Update total of max data flow */
+			 /* TODO: Update total of data usage */
+			 /* TODO: Update total of max data usage */
 		 }
 		
 		/**
@@ -242,7 +359,24 @@ public class AstExplorerVisitor extends ASTVisitor
 	           ma.aui.scmtool.model.Class clazz = classesStack.pop();
 	           
 	           clazz.setNumberOfPublicMembers(new IntegerMetric ("Number of Public Members", nbOfPublicMembers));
-	           classesList.add(clazz);		
+	           classesList.add(clazz);
+	           
+	           /* TODO: Update max of operators */
+	           /* TODO: Update max of total operators */
+	           /* TODO: Update max of levels */
+	           /* TODO: Update max of total levels */
+	           /* TODO: Update max of data flow */
+	           /* TODO: Update max of total data flow */
+	           /* TODO: Update max of data usage */
+	           /* TODO: Update max of total data usage */
+	           
+	           /* TODO: remove printing code */
+	           IntegerMetric clazzTotalOfOperators = (IntegerMetric) clazz.getTotalOfOperators();
+	           IntegerMetric clazzTotalOfMaximumOfOperators = (IntegerMetric) clazz.getTotalOfMaximumOperators();
+	           
+	           System.out.println("Class " + clazz.toString());
+	           System.out.println("\t" +"Total of Operators : " + clazzTotalOfOperators.getValue());
+	           System.out.println("\t" +"Total of Maximum of Operators : " + clazzTotalOfMaximumOfOperators.getValue());
 		}	
 	}
 
@@ -271,13 +405,15 @@ public class AstExplorerVisitor extends ASTVisitor
 	    
 	    	for (FieldDeclaration classField :classFields)
 	    	{
+	    		
+	    		
 	    		int modifiers = classField.getModifiers();
 	    		System.out.println(classField.toString());
 	   
 	    		if (Modifier.isPublic(modifiers))
 	    		{
-	    			nbOfPublicMembers ++;
-	    			System.out.println("public field detected ");
+	    			nbOfPublicMembers += classField.fragments().size();
+	    			System.out.println("public field(s) detected ");
 	    		}
 	    	}
 		return super.visit(node);

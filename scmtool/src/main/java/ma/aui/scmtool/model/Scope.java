@@ -14,6 +14,10 @@ public abstract class Scope
 		super();
 		this.codeString = codeString;
 	}
+	
+	public Scope(){
+		super();
+	}
 
 	public String getCodeString()
 	{

@@ -9,7 +9,16 @@ public class IntegerMetric extends Metric {
 		super(name);
 		this.value = value;
 	}
-
+	
+	public void addToValue(Integer val)
+	{
+		value += val;
+	}
+	
+	public void subFromValue(Integer val)
+	{
+		value -= val;
+	}
 
 	public IntegerMetric(String name) 
 	{
