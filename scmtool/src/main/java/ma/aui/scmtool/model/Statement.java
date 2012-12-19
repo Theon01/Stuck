@@ -49,5 +49,12 @@ public class Statement extends Scope
 	public void setDataUsage(Metric dataUsage) {
 		this.dataUsage = dataUsage;
 	}
+	
+	@Override
+	public void print()
+	{
+		System.out.print("\t\t\t");
+		System.out.println(codeString);
+	}
 
 }

@@ -122,4 +122,15 @@ public class Method extends Scope
         totalOfMethodCalls = new IntegerMetric("Total of Method Calls", new Integer(0));
 	}
 
+	@Override
+	public void print()
+	{
+		System.out.print("\t\t");
+		super.print();
+		for(Scope s: statements)
+		{
+			s.print();
+		}
+			
+	}
 }

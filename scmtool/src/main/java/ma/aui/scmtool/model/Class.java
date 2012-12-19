@@ -240,4 +240,15 @@ public class Class extends Scope
 	public void setNumberOfPublicMembers(Metric numberOfPublicMembers) {
 		this.numberOfPublicMembers = numberOfPublicMembers;
 	}
+	
+	@Override
+	public void print()
+	{
+		System.out.print("\t");
+		super.print();
+		for(Scope s: methods)
+		{
+			s.print();
+		}
+	}
 }

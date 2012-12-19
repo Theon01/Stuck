@@ -30,5 +30,15 @@ public class CompilationUnit extends Scope
 	public CompilationUnit() 
 	{
 	}
+	
+	@Override
+	public void print()
+	{
+		super.print();
+		for(Scope s: classes)
+		{
+			s.print();
+		}
+	}
 
 }

@@ -66,6 +66,7 @@ public class SCMGUI
 	private JLabel lblClasses;
 	private JLabel lblMethods;
 	private DefaultComboBoxModel<String> cbTypesModel ;
+	private DefaultComboBoxModel<String> cbMethodsModel ;
 	private CuMetadata cuMetadata;
 	private Parser parser;
 	private IProject project;
@@ -711,12 +712,14 @@ public class SCMGUI
 				CompilationUnit cu = parser.getAstExplorerVisitor().getCunitsList().firstElement();
 				Vector<ma.aui.scmtool.model.Class> vclasses = (Vector) cu.getClasses();
 				Vector<String> classesNames = new Vector<String>();
-
+				Vector<String> methodsNames = new Vector<String>(); 
+				Vector<ma.aui.scmtool.model.Method> vmethods = new Vector<ma.aui.scmtool.model.Method>();
+				
 				for(ma.aui.scmtool.model.Class clazz : vclasses){
 
-					TypeDeclaration td = (TypeDeclaration) clazz.getNode();
-					String className = td.getName().toString();
-					classesNames.add(className);
+					classesNames.add(clazz.getName());
+					//adding the methods
+					vmethods.addAll(clazz.getMethods());
 				}
 
 				cbTypesModel = new DefaultComboBoxModel<String>(classesNames);
@@ -725,6 +728,16 @@ public class SCMGUI
 				//setnumber ofClasses
 				
 				txtnclasses.setText(Integer.toString(vclasses.size()));
+				
+				//poulate the Methods cb
+				
+				for(ma.aui.scmtool.model.Method method : vmethods){
+					methodsNames.add(method.getName());
+				}
+				
+				cbMethodsModel = new DefaultComboBoxModel<String>(methodsNames);
+				cbMethods.setModel(cbMethodsModel);
+				
 
 
 

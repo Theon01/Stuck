@@ -8,6 +8,11 @@ public abstract class Scope
 {
 	protected String codeString;
 	protected ASTNode node;
+	protected String name;
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	public Scope(String codeString)
 	{
@@ -36,7 +41,15 @@ public abstract class Scope
 	public void setNode(ASTNode node) {
 		this.node = node;
 	}
+
+	public String getName() 
+	{
+		return name;
+	}
 	
-	
+	public void print()
+	{
+		System.out.println(name);
+	}
 	
 }

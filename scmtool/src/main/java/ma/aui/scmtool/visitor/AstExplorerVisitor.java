@@ -171,13 +171,18 @@ public class AstExplorerVisitor extends ASTVisitor
 	public void preVisit(ASTNode node)
 	{
 		super.preVisit(node);
+		String name = "";
 
 		/**
 		 * Push statement for processing
 		 */
 		if(node instanceof Expression || node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT )
 		{
-			stStack.push(new ma.aui.scmtool.model.Statement(node.toString()));
+			ma.aui.scmtool.model.Statement stmt = 
+					new ma.aui.scmtool.model.Statement(node.toString());
+			name = node.toString();
+			stmt.setName(name);
+			stStack.push(stmt);
 		}
 
 		switch (node.getNodeType())
@@ -185,13 +190,19 @@ public class AstExplorerVisitor extends ASTVisitor
 		case ASTNode.TYPE_DECLARATION :
 			ma.aui.scmtool.model.Class c = new ma.aui.scmtool.model.Class(node.toString());
 			c.setNode(node);
+			name = ((TypeDeclaration) node).getName().toString();
+			c.setName(name);
 			classesStack.push(c);
 			
 			inOutNull = 0;
 			break;
 
 		case ASTNode.METHOD_DECLARATION : 
-			methodsStack.push(new ma.aui.scmtool.model.Method(node.toString()));
+			ma.aui.scmtool.model.Method md =
+					new ma.aui.scmtool.model.Method(node.toString());
+			name = ((MethodDeclaration) node).getName().toString();
+			md.setName(name);
+			methodsStack.push(md);
 			maxLevel = 0; // Reset max level (new method)
 			maxNumberOfOperators = 0; // Reset max of operators
 			maxDataFlow = 0; // Reset max of data flow
@@ -199,7 +210,11 @@ public class AstExplorerVisitor extends ASTVisitor
 			break;
 
 		case ASTNode.COMPILATION_UNIT : 
-			cuStack.push(new ma.aui.scmtool.model.CompilationUnit()); 
+			ma.aui.scmtool.model.CompilationUnit cu = 
+					new ma.aui.scmtool.model.CompilationUnit();
+			name = "package";
+			cu.setName(name);
+			cuStack.push(cu);
 			break;
 
 		default: break;
@@ -494,9 +509,15 @@ public class AstExplorerVisitor extends ASTVisitor
 		if (node instanceof CompilationUnit){
 			
 			cunitsList.add(cuStack.peek());
-			
-			
+
+			System.out.println("Tree:");
+			//printTree(cuStack.peek());
 		}
+	}
+
+	private void printTree(ma.aui.scmtool.model.Scope tree)
+	{
+		tree.print();
 	}
 
 	/**
