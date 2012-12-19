@@ -1,10 +1,11 @@
 package ma.aui.scmtool.model;
 
 import java.util.Collection;
+import java.util.Vector;
 
 public class Class extends Scope 
 {
-	Collection<Method> methods;
+	Collection<Method> methods = new Vector<Method>();
 	
 	private Metric totalOfOperators;
 	private Metric maximumOfOperators;

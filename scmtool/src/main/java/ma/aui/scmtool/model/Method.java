@@ -18,6 +18,16 @@ public class Method extends Scope
 	
 	private Metric totalDataUsage;
 	private Metric maximumDataUsage;
+	
+	private Metric totalOfMethodCalls;
+
+	public Metric getTotalOfMethodCalls() {
+		return totalOfMethodCalls;
+	}
+
+	public void setTotalOfMethodCalls(Metric totalOfMethodCalls) {
+		this.totalOfMethodCalls = totalOfMethodCalls;
+	}
 
 	public Metric getTotalOfLevels() {
 		return totalOfLevels;
@@ -108,6 +118,8 @@ public class Method extends Scope
 		
 		totalDataUsage = new IntegerMetric("Total of Data Usage", new Integer(0));
         maximumDataUsage = new IntegerMetric("Maximum of Data Usage", new Integer(0));
+        
+        totalOfMethodCalls = new IntegerMetric("Total of Method Calls", new Integer(0));
 	}
 
 }

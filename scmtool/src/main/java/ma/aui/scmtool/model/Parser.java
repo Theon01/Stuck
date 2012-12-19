@@ -8,6 +8,8 @@ import java.util.Vector;
 
 import ma.aui.scmtool.visitor.AstExplorerVisitor;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -17,7 +19,7 @@ public class Parser
 {
 
 	private AstExplorerVisitor astExplorerVisitor;
-	
+	//private IProject project;
 	
 	public Parser(AstExplorerVisitor astExplorerVisitor) {
 		super();
@@ -28,6 +30,8 @@ public class Parser
 
 	public AST parseFile(File sourceFile) throws IOException
 	{
+		
+		//JavaCore.create(project);
 		// Parse the file 
 		BufferedReader br = new BufferedReader(new FileReader(sourceFile));
 		char[] chars = new char[(int)sourceFile.length()];
@@ -37,10 +41,15 @@ public class Parser
 		//System.out.println(chars);
 		//Generate the AST
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		System.out.println("Location of the file: "+ sourceFile.getParent());
+	    parser.setEnvironment(new String[]{}, new String[]{sourceFile.getParent()}, null, false);
+		parser.setUnitName(sourceFile.getName());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setResolveBindings(true);
 		parser.setSource(chars);
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null); 
 		unit.recordModifications();
-		AST ast = unit.getAST(); 
+		AST ast = unit.getAST();
 		unit.accept(this.astExplorerVisitor);
 		/*System.out.println(astExplorerVisitor.getClassesStack().toString());
 		System.out.println("*****************************************************");
