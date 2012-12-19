@@ -42,6 +42,7 @@ import org.eclipse.jdt.launching.LibraryLocation;
 
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+import javax.swing.JTabbedPane;
 
 public class SCMGUI 
 {
@@ -59,6 +60,7 @@ public class SCMGUI
 	private CuMetadata cuMetadata;
 	private Parser parser;
 	private IProject project;
+	private JTabbedPane tabbedPane;
 
 	/**
 	 * Launch the application.
@@ -143,7 +145,7 @@ public class SCMGUI
 	private void initialize() {
 		frame = new JFrame();
 		frame.setResizable(false);
-		frame.setBounds(100, 100, 903, 513);
+		frame.setBounds(100, 100, 1017, 638);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 
@@ -165,11 +167,11 @@ public class SCMGUI
 		cbTypesModel = new DefaultComboBoxModel<String>();
 		cbTypes = new JComboBox<String>(cbTypesModel);
 		//cbTypes.addItemListener(new CbTypesItemListener());
-		cbTypes.setBounds(372, 117, 158, 23);
+		cbTypes.setBounds(369, 117, 158, 23);
 		frame.getContentPane().add(cbTypes);
 
 		cbMethods = new JComboBox();
-		cbMethods.setBounds(372, 151, 158, 23);
+		cbMethods.setBounds(369, 151, 158, 23);
 		frame.getContentPane().add(cbMethods);
 
 		lblClasses = new JLabel("Class");
@@ -179,6 +181,10 @@ public class SCMGUI
 		lblMethods = new JLabel("Method");
 		lblMethods.setBounds(310, 154, 55, 16);
 		frame.getContentPane().add(lblMethods);
+		
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.setBounds(0, 215, 887, 269);
+		frame.getContentPane().add(tabbedPane);
 	}
 
 	//File -> Open 
@@ -222,5 +228,4 @@ public class SCMGUI
 			}
 		}
 	}
-
 }

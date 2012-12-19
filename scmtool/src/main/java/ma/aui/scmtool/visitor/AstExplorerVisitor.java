@@ -1,5 +1,6 @@
 package ma.aui.scmtool.visitor;
 
+import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -23,10 +24,9 @@ public class AstExplorerVisitor extends ASTVisitor
 	private Vector<ma.aui.scmtool.model.CompilationUnit> cunitsList;
 	
 	/**
-	 * Set of marked method calls.
+	 * Set of invoked methods belonging to other classes.
 	 */
-	HashSet<String> declared = new HashSet<String>();
-	HashSet<String> invoked = new HashSet<String>();
+	AbstractSet<String> invoked = new HashSet<String>();
 
 	/**
 	 * Current level in source code
@@ -41,6 +41,8 @@ public class AstExplorerVisitor extends ASTVisitor
 	/**
 	 * Max number of operators 
 	 */
+	
+	private Integer inOutCount = 0;
 
 	private Integer maxNumberOfOperators = 0;
 	/**
@@ -51,8 +53,6 @@ public class AstExplorerVisitor extends ASTVisitor
 	private Integer maxDataFlow = 0;
 
 	private Integer maxDataUsage = 0;
-	
-	private Integer inOutDegree = 0;
 
 	ma.aui.scmtool.model.Method topMethod;
 
@@ -186,7 +186,10 @@ public class AstExplorerVisitor extends ASTVisitor
 		switch (node.getNodeType())
 		{
 		case ASTNode.TYPE_DECLARATION :
-			classesStack.push(new ma.aui.scmtool.model.Class(node.toString()));
+			ma.aui.scmtool.model.Class c = new ma.aui.scmtool.model.Class(node.toString());
+			c.setNode(node);
+			classesStack.push(c);
+			inOutCount = 0;
 			break;
 
 		case ASTNode.METHOD_DECLARATION : 
@@ -469,8 +472,9 @@ public class AstExplorerVisitor extends ASTVisitor
 			/**
 			 * Update In/Out Degree
 			 */
-			Collection<ma.aui.scmtool.model.Method> classMethods = clazz.getMethods();
-			
+			IntegerMetric inOut = (IntegerMetric) clazz.getInOutDegree();
+			//invoked.removeAll(declared);
+			inOut.setValue(invoked.size());
 
 			/* TODO: remove printing code */
 			IntegerMetric clazzTotalOfOperators = (IntegerMetric) clazz.getTotalOfOperators();
@@ -479,6 +483,8 @@ public class AstExplorerVisitor extends ASTVisitor
 			System.out.println("Class " + clazz.toString());
 			System.out.println("\t" +"Total of Operators : " + clazzTotalOfOperators.getValue());
 			System.out.println("\t" +"Total of Maximum of Operators : " + clazzTotalOfMaximumOfOperators.getValue());
+			System.out.println("\t" +"In/Out Degree : " + invoked.size());
+			System.out.println("Invoked methods belonging to other classes " + invoked.toString());
 			
 			/* Set compilation unit metrics in which this class exists */
 			ma.aui.scmtool.model.CompilationUnit topCompilationUnit = cuStack.peek();
@@ -500,32 +506,37 @@ public class AstExplorerVisitor extends ASTVisitor
 		methodCalls.addToValue(1);
 		
 		/* Add name of invoked method to invoked HashSet */
-		System.out.println("FULL invokation: " + node.getName().getFullyQualifiedName());
+		//System.out.println("FULL invokation: " + node.getName());
 
 		IMethodBinding methodBinding = node.resolveMethodBinding();
 		
-		System.out.println("The method belongs to : "+methodBinding.getDeclaringClass().getName() );
+		//System.out.println("The method belongs to : "+methodBinding.getDeclaringClass().getName());
 		//invoked.add(node.getName().getFullyQualifiedName());
 		
-		System.out.println(methodBinding.getDeclaringClass().getName()+"."+node.getName().getFullyQualifiedName());
+		//System.out.println(methodBinding.getDeclaringClass().getName()+"."+node.getName());
 		
-		invoked.add(methodBinding.getDeclaringClass().getName()+"."+node.getName().getFullyQualifiedName());
+		ma.aui.scmtool.model.Class topClass = classesStack.peek();
+		TypeDeclaration topClassNode = (TypeDeclaration) topClass.getNode();
+		System.out.println("NAME " + topClassNode.getName().toString());
+		if(! methodBinding.getDeclaringClass().getName().equals(topClassNode.getName().toString()))
+		{
+			invoked.add(node.getName().toString());
+		}
 		
 		return super.visit(node);
 	}
 	
-	
-	
 	@Override
 	public boolean visit(MethodDeclaration node) {
 		
-		System.out.println(" Method Declaration : " + node.getName().getFullyQualifiedName());
+		System.out.println(" Method Declaration : " + node.getName());
 
 		TypeDeclaration definningClass = (TypeDeclaration) node.getParent();
+		//just making sure
+		System.out.println("The method is decalred in : "+definningClass.getName());
+		System.out.println(definningClass.getName().toString()+"."+node.getName());
 		
-		System.out.println("The method is decalred in : "+definningClass.getName().toString());
-		
-		declared.add(definningClass.getName().toString()+"."+node.getName().getFullyQualifiedName());
+		//declared.add(definningClass.getName()+"."+node.getName());
 		
 		return super.visit(node);
 	}
