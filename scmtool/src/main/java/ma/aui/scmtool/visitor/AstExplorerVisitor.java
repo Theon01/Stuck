@@ -504,12 +504,32 @@ public class AstExplorerVisitor extends ASTVisitor
 
 		IMethodBinding methodBinding = node.resolveMethodBinding();
 		
-		System.out.println("the binding of the method : "+methodBinding.getDeclaringClass().getName() );
-		invoked.add(node.getName().getFullyQualifiedName());
+		System.out.println("The method belongs to : "+methodBinding.getDeclaringClass().getName() );
+		//invoked.add(node.getName().getFullyQualifiedName());
+		
+		System.out.println(methodBinding.getDeclaringClass().getName()+"."+node.getName().getFullyQualifiedName());
+		
+		invoked.add(methodBinding.getDeclaringClass().getName()+"."+node.getName().getFullyQualifiedName());
 		
 		return super.visit(node);
 	}
 	
+	
+	
+	@Override
+	public boolean visit(MethodDeclaration node) {
+		
+		System.out.println(" Method Declaration : " + node.getName().getFullyQualifiedName());
+
+		TypeDeclaration definningClass = (TypeDeclaration) node.getParent();
+		
+		System.out.println("The method is decalred in : "+definningClass.getName().toString());
+		
+		declared.add(definningClass.getName().toString()+"."+node.getName().getFullyQualifiedName());
+		
+		return super.visit(node);
+	}
+
 	@Override
 	public boolean visit(Assignment node)
 	{
