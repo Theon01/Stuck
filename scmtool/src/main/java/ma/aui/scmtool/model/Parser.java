@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jface.text.Document;
 
 
 public class Parser
@@ -20,6 +21,8 @@ public class Parser
 
 	private AstExplorerVisitor astExplorerVisitor;
 	//private IProject project;
+	private Integer loc;
+	
 	
 	public Parser(AstExplorerVisitor astExplorerVisitor) {
 		super();
@@ -51,6 +54,9 @@ public class Parser
 		unit.recordModifications();
 		AST ast = unit.getAST();
 		unit.accept(this.astExplorerVisitor);
+		Document doc = new Document(unit.toString());
+		loc = doc.getNumberOfLines();
+		
 		/*System.out.println(astExplorerVisitor.getClassesStack().toString());
 		System.out.println("*****************************************************");
 		System.out.println(astExplorerVisitor.getMethodsStack().toString());*/
@@ -78,12 +84,29 @@ public class Parser
 			System.out.println(clazz.toString() + ":");
 			System.out.println("\t" + clazz.getNumberOfPublicMembers().getName() + ": " + ((IntegerMetric)clazz.getNumberOfPublicMembers()).getValue());
 			
-			
-			
 		}
 		
-		
 		return ast;
+	}
+
+
+
+	public AstExplorerVisitor getAstExplorerVisitor() {
+		return astExplorerVisitor;
+	}
+
+	public Integer getLoc() {
+		return loc;
+	}
+
+	public void setAstExplorerVisitor(AstExplorerVisitor astExplorerVisitor) {
+		this.astExplorerVisitor = astExplorerVisitor;
+	}
+
+
+
+	public void setLoc(Integer loc) {
+		this.loc = loc;
 	}
 
 

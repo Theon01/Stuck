@@ -1,7 +1,6 @@
 package ma.aui.scmtool.visitor;
 
 import java.util.AbstractSet;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
@@ -41,9 +40,6 @@ public class AstExplorerVisitor extends ASTVisitor
 	/**
 	 * Max number of operators 
 	 */
-	
-	private Integer inOutCount = 0;
-
 	private Integer maxNumberOfOperators = 0;
 	/**
 	 * Count of public members in current class
@@ -55,6 +51,7 @@ public class AstExplorerVisitor extends ASTVisitor
 	private Integer maxDataUsage = 0;
 
 	ma.aui.scmtool.model.Method topMethod;
+	private Integer inOutNull = 0;
 
 	/**
 	 * Constructor
@@ -189,7 +186,8 @@ public class AstExplorerVisitor extends ASTVisitor
 			ma.aui.scmtool.model.Class c = new ma.aui.scmtool.model.Class(node.toString());
 			c.setNode(node);
 			classesStack.push(c);
-			inOutCount = 0;
+			
+			inOutNull = 0;
 			break;
 
 		case ASTNode.METHOD_DECLARATION : 
@@ -474,7 +472,7 @@ public class AstExplorerVisitor extends ASTVisitor
 			 */
 			IntegerMetric inOut = (IntegerMetric) clazz.getInOutDegree();
 			//invoked.removeAll(declared);
-			inOut.setValue(invoked.size());
+			inOut.setValue(invoked.size() + inOutNull);
 
 			/* TODO: remove printing code */
 			IntegerMetric clazzTotalOfOperators = (IntegerMetric) clazz.getTotalOfOperators();
@@ -491,7 +489,14 @@ public class AstExplorerVisitor extends ASTVisitor
 			
 			/* Add class to list of classes in compilation unit */
 			topCompilationUnit.getClasses().add(clazz);
-		}	
+		}
+		
+		if (node instanceof CompilationUnit){
+			
+			cunitsList.add(cuStack.peek());
+			
+			
+		}
 	}
 
 	/**
@@ -514,11 +519,16 @@ public class AstExplorerVisitor extends ASTVisitor
 		//invoked.add(node.getName().getFullyQualifiedName());
 		
 		//System.out.println(methodBinding.getDeclaringClass().getName()+"."+node.getName());
+		System.out.println("Binding: " + methodBinding);
 		
 		ma.aui.scmtool.model.Class topClass = classesStack.peek();
 		TypeDeclaration topClassNode = (TypeDeclaration) topClass.getNode();
 		System.out.println("NAME " + topClassNode.getName().toString());
-		if(! methodBinding.getDeclaringClass().getName().equals(topClassNode.getName().toString()))
+		if(methodBinding == null)
+		{
+			inOutNull  ++;
+		}
+		else if(! methodBinding.getDeclaringClass().getName().equals(topClassNode.getName().toString()))
 		{
 			invoked.add(node.getName().toString());
 		}
